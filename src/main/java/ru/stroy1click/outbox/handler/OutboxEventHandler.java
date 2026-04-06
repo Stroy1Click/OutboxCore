@@ -29,13 +29,13 @@ public class OutboxEventHandler {
 
     private final ObjectMapper objectMapper;
 
-    @Scheduled(fixedDelay = 600_000) // 10 минут
+    @Scheduled(fixedDelay = 2000)
     public void handle(){
-        log.info("handle");
+        log.debug("handle");
         List<OutboxEventDto> outboxEvents = this.outboxEventService.getCreatedAndRetryableEvents();
 
         if(!outboxEvents.isEmpty()){
-            log.info("handle");
+            log.debug("handle");
 
             for(OutboxEventDto outboxEvent : outboxEvents) {
                 try {
@@ -53,15 +53,13 @@ public class OutboxEventHandler {
                     CompletableFuture<SendResult<String, Object>> future
                             = this.kafkaTemplate.send(producerRecord);
 
-                    future.whenComplete((result, exception) -> {
-                        handleFutureSendResult(outboxEvent.getId(), exception);
-                    });
+                    future.whenComplete((result, exception) -> handleFutureSendResult(outboxEvent.getId(), exception));
                 } catch (KafkaException e) {
                     // Проверяем, можно ли повторить
-                    log.info("event id {} marked as RETRYABLE due to KafkaException", outboxEvent.getId(), e);
+                    log.warn("event id {} marked as RETRYABLE due to KafkaException", outboxEvent.getId(), e);
                     this.outboxEventService.setRetryStatus(outboxEvent.getId(), e.getMessage());
                 } catch (Exception e){
-                    log.info("event id {} marked as FAILED", outboxEvent.getId(), e);
+                    log.warn("event id {} marked as FAILED", outboxEvent.getId(), e);
                     this.outboxEventService.setFailedStatus(outboxEvent.getId(), e.getMessage());
                 }
             }
@@ -82,10 +80,10 @@ public class OutboxEventHandler {
                     : e;
 
             if(actualException instanceof RetriableException){
-                log.info("event id {} marked as RETRYABLE", eventId, actualException);
+                log.warn("event id {} marked as RETRYABLE", eventId, actualException);
                 this.outboxEventService.setRetryStatus(eventId, actualException.getMessage());
             } else {
-                log.info("event id {} marked as FAILED", eventId, actualException);
+                log.warn("event id {} marked as FAILED", eventId, actualException);
                 this.outboxEventService.setFailedStatus(eventId, actualException.getMessage());
             }
         } else {
