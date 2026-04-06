@@ -31,7 +31,7 @@ public class OutboxEventServiceImpl implements OutboxEventService {
 
     @Override
     public void save(String topic, Object entity) {
-        log.info("save {}, {}", topic, entity);
+        log.debug("save {}, {}", topic, entity);
 
         try {
             this.outboxEventRepository.save(
@@ -63,7 +63,7 @@ public class OutboxEventServiceImpl implements OutboxEventService {
 
     @Override
     public void resetProcessingToRetryableStatus() {
-        log.info("resetProcessingToRetryableStatus");
+        log.debug("resetProcessingToRetryableStatus");
 
         this.outboxEventRepository.findTop100WithProcessingStatus()
                 .forEach(outboxEvent -> outboxEvent.setStatus(MessageStatus.RETRYABLE));
@@ -71,7 +71,7 @@ public class OutboxEventServiceImpl implements OutboxEventService {
 
     @Override
     public void setSucceededStatus(Long id) {
-        log.info("setSucceededStatus {}", id);
+        log.debug("setSucceededStatus {}", id);
 
         OutboxEvent outboxEvent = this.outboxEventRepository.findById(id).orElseThrow(
                 () -> new NotFoundException("OutboxEvent not found with id {}" + id));
@@ -82,7 +82,7 @@ public class OutboxEventServiceImpl implements OutboxEventService {
 
     @Override
     public void setFailedStatus(Long id, String errorMessage) {
-        log.info("setFailedStatus {}, {}", id, errorMessage);
+        log.debug("setFailedStatus {}, {}", id, errorMessage);
         OutboxEvent outboxEvent = this.outboxEventRepository.findById(id).orElseThrow(
                 () -> new NotFoundException("OutboxEvent not found with id {}" + id));
 
@@ -92,7 +92,7 @@ public class OutboxEventServiceImpl implements OutboxEventService {
 
     @Override
     public void setRetryStatus(Long id, String errorMessage) {
-        log.info("setRetryStatus {}, {}", id, errorMessage);
+        log.debug("setRetryStatus {}, {}", id, errorMessage);
 
         OutboxEvent outboxEvent = this.outboxEventRepository.findById(id).orElseThrow(
                 () -> new NotFoundException("OutboxEvent not found with id {}" + id));
