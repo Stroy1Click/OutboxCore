@@ -51,7 +51,7 @@ public class OutboxEventServiceImpl implements OutboxEventService {
 
     @Override
     public List<OutboxEventDto> getCreatedAndRetryableEvents() {
-        log.info("getCreatedAndRetryableEvents");
+        log.debug("getCreatedAndRetryableEvents");
 
         List<OutboxEvent> outboxEvents = this.outboxEventRepository.findTop100WithCreatedAndRetryableStatus();
 

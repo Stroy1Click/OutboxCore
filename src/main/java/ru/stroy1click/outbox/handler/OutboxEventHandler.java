@@ -68,7 +68,7 @@ public class OutboxEventHandler {
 
     @Scheduled(fixedDelay = 3_600_000) // 1 час
     public void handleProcessingEvents(){
-        log.info("handleProcessingEvents");
+        log.debug("handleProcessingEvents");
 
         this.outboxEventService.resetProcessingToRetryableStatus();
     }
@@ -87,7 +87,7 @@ public class OutboxEventHandler {
                 this.outboxEventService.setFailedStatus(eventId, actualException.getMessage());
             }
         } else {
-            log.info("event id {} successfully sent", eventId);
+            log.debug("event id {} successfully sent", eventId);
             this.outboxEventService.setSucceededStatus(eventId);
         }
     }
